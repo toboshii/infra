@@ -1,0 +1,32 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: banana-app
+  labels:
+    app: banana
+spec:
+  containers:
+    - name: banana-app
+      image: hashicorp/http-echo
+      args:
+        - "-text=banana"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  externalIPs:
+  - 192.168.169.40
+  selector:
+    app: banana
+  ports:
+  # - name: http
+  #   port: 5678
+  #   targetPort: 5678
+  - port: 5678
+  type: LoadBalancer
+  # type: ClusterIP
+  # externalTrafficPolicy: Local
+  # loadBalancerIP: 192.168.169.40

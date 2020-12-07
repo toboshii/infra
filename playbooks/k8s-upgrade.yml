@@ -1,0 +1,2 @@
+---
+- import_playbook: ../3d/kubespray/upgrade-cluster.yml

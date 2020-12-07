@@ -1,0 +1,18 @@
+---
+
+# IP address of node
+ansible_host: "darling.56k.jp"
+ip: "10.0.30.3"
+
+
+# Format and mount a device for longhorn
+longhorn:
+  enabled: true
+  disks:
+  - "/dev/sdd"
+  filesystem: "ext4"
+  mountpoint: "/var/lib/longhorn"
+  # Defines additional lvcreate options (e.g. stripes, stripesize, etc)
+  # lvcreate_opts: ""
+  # Defines additional mount options (e.g. noatime, noexec, etc)
+  # mount_opts: ""

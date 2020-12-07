@@ -1,0 +1,11 @@
+*.vdi
+*.log
+.vagrant
+.DS_Store
+kubeconfig
+.vscode
+.tasks
+ignore
+
+inventory/*/artifacts
+inventory/*/credentials

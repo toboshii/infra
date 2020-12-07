@@ -1,0 +1,87 @@
+---
+version: '3'
+
+vars:
+  VMS: "k8s-node-10 k8s-node-11 k8s-node-12"
+
+tasks:
+
+  up:
+    desc: Create VMs
+    cmds:
+    - |
+      vagrant status --machine-readable --no-color | grep metadata | cut -d, -f2 | {{if eq OS "linux"}}xargs{{else}}gxargs{{end}} --max-procs=4 -I {} vagrant up --provider virtualbox {}
+  
+  snapshot:
+    desc: Snapshot VMs
+    cmds:
+    - |
+      for vm in {{.VMS}}; do
+        VBoxManage snapshot "${vm}" take "baseline" --live
+      done
+  
+  build:
+    desc: Create and take a snapshot of VMs
+    cmds:
+    - task: up
+    - task: snapshot
+  
+  rebuild:
+    desc: Rebuild
+    cmds:
+      - task: destroy
+      - task: build
+  
+  destroy:
+    desc: Destroy
+    cmds:
+    - |
+      vboxmanage closemedium $(realpath k8s-node-11-block.vdi) --delete > /dev/null 2>&1 || true
+      vboxmanage closemedium $(realpath k8s-node-12-block.vdi) --delete > /dev/null 2>&1 || true
+      for vm in {{.VMS}}; do
+        VBoxManage controlvm "${vm}" poweroff > /dev/null 2>&1
+        VBoxManage unregistervm "${vm}" --delete > /dev/null 2>&1
+      done
+      rm -rf *.vdi > /dev/null 2>&1 || true
+
+  start:
+    desc: Start
+    cmds:
+    - |
+      for vm in {{.VMS}}; do
+        VBoxManage startvm "${vm}" --type headless
+      done
+  
+  stop:
+    desc: Stop
+    cmds:
+    - |
+      for vm in {{.VMS}}; do
+        VBoxManage controlvm "${vm}" poweroff
+      done
+  
+  restart:
+    desc: restart
+    cmds:
+      - task: stop
+      - task: start
+  
+  restore:
+    desc: Restore
+    cmds:
+    - |
+      for vm in {{.VMS}}; do
+        VBoxManage controlvm "${vm}" poweroff
+        VBoxManage snapshot "${vm}" restore "baseline"
+        VBoxManage startvm "${vm}" --type headless
+      done
+  
+  box:update:
+    desc: Update the Vagrant boxes
+    cmds:
+    - vagrant box update
+  
+  box:prune:
+    desc: Prune inactive boxes
+    cmds:
+    - vagrant box prune --keep-active-boxes

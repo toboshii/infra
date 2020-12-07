@@ -1,0 +1,20 @@
+- hosts:
+  - master
+  - worker
+  become: true
+  gather_facts: true
+  vars_prompt:
+    name: "run_confirmation"
+    prompt: "This will DESTROY your longhorn volumes. Do you wish to continue? [Y/n]"
+    default: "n"
+    private: no
+  any_errors_fatal: yes
+  pre_tasks:
+  - name: check confirmation
+    fail:
+      msg: "Abort."
+    when:
+    - run_confirmation != "Y"
+
+  roles:
+  - longhorn

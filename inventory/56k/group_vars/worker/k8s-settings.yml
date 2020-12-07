@@ -1,0 +1,2 @@
+# Define the host as a control plane node
+k8s_control_node: false

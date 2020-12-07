@@ -1,0 +1,16 @@
+---
+version: "3"
+
+tasks:
+  install:
+    desc: Install required pacman apps
+    cmds:
+      - sudo pacman -Sy --noconfirm ansible-base ansible kubectl helm
+
+  install:dev:
+    desc:
+      Install required pacman apps for local development with Vagrant and
+      Virtualbox
+    cmds:
+      - sudo pacman -Sy --noconfirm virtualbox vagrant yamllint jq yq shellcheck
+        sshpass python-pre-commit

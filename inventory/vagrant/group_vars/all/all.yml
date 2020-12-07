@@ -1,0 +1,104 @@
+---
+#
+# Vars for this role
+#
+
+# Ansible user to ssh into servers with
+ansible_user: "vagrant"
+ansible_ssh_pass: "vagrant"
+ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null"
+ansible_become_pass: "vagrant"
+
+# Timezone for the servers
+timezone: "America/Chicago"
+
+minimal_node_memory_mb: 500
+
+# Set custom ntp servers
+ntp_servers:
+  primary:
+    - "time.cloudflare.com"
+    - "time.google.com"
+  fallback:
+    - "0.us.pool.ntp.org"
+    - "1.us.pool.ntp.org"
+    - "2.us.pool.ntp.org"
+    - "3.us.pool.ntp.org"
+
+# Enable coping kubeconfig to ~/.kube
+# ...otherwise a kubeconfig will be left in the root of the repo
+kubeconfig: false
+
+# Additional ssh public keys to add to the nodes
+ssh_authorized_keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDda1EaFcieZ4Y0LQhwZPNV0TqZ1kUCxCdieriuuIesQ"
+
+# Enable rsyslog
+# ...requires a rsyslog server already set up
+remote_syslog:
+  enabled: false
+  ip: x.x.x.x
+  port: 1514
+
+# Configure a pull thru cache using an existing registry
+# ...requires a registry cache already set up
+registry_cache:
+  enabled: false
+  address: "http://x.x.x.x:5000"
+
+# # @TODO Allow a custom registry
+# registry_custom:
+# - name: ""
+#   enabled: false
+#   address: "http://x.x.x.x:5000"
+#   username: ""
+#   password: ""
+# # - name: ""
+# #   enabled: false
+# #   address: "http://x.x.x.x:5000"
+# #   username: ""
+# #   password: ""
+
+# Install keepalived and set a VIP
+# ...only enabled if you are using HA masters
+keepalived:
+  enabled: false
+  vip: "x.x.x.x"
+  interface: "{{ ansible_default_ipv4['interface'] }}"
+
+# Use the Calico CNI driver instead of flannel
+# ...adjust 'k3s_flannel_backend' and 'k3s_no_flannel' if you want to use flannel
+calico:
+  enabled: false
+  operator_manifest: "https://docs.projectcalico.org/manifests/tigera-operator.yaml"
+  # https://docs.projectcalico.org/networking/mtu#operator
+  mtu: 1500
+  bgp:
+    # enabling bgp requires your router set up to handle it
+    enabled: false
+    # peer is usually your router e.g. 192.168.1.1
+    peer: x.x.x.1
+    as: 64512
+    # externalIPs is the network you want services to consume
+    # this network should not exist or be defined anywhere in your network
+    # e.g. 192.168.69.0/24
+    externalIPs: x.x.x.0/24
+
+# Use the cilium CNI driver instead of flannel
+# ...adjust 'k3s_flannel_backend' and 'k3s_no_flannel' if you want to use flannel
+cilium:
+  enabled: false
+  version: 1.8.3
+  peerRouterIP: 192.168.42.1
+  peerRouterASNS: 64512
+  clusterASN: 64512
+
+# Apply CRDs to the cluster
+# crds:
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-alertmanager.yaml"
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-podmonitor.yaml"
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-prometheus.yaml"
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-prometheusrules.yaml"
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-servicemonitor.yaml"
+#   - "https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/crds/crd-thanosrulers.yaml"
+#   - "https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.crds.yaml"
